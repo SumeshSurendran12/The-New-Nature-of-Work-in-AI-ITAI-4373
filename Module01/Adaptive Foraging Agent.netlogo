@@ -1,0 +1,69 @@
+breed [agents agent]
+breed [food-sources food-source]
+
+agents-own [energy]
+
+to setup
+  clear-all
+  create-agents population [
+    setxy random-xcor random-ycor
+    set color blue
+    set shape "person"
+    set energy 100
+  ]
+  create-food-sources 5 [
+    setxy random-xcor random-ycor
+    set color green
+    set shape "circle"
+  ]
+  reset-ticks
+end
+
+to go
+  ask agents [
+    ifelse any? food-sources in-radius 5 [
+      move-towards-food
+    ] [
+      wander
+    ]
+    consume-energy
+  ]
+  regrow-food
+  tick
+end
+
+to move-towards-food
+  face min-one-of food-sources [distance myself]
+  forward 1
+end
+
+to wander
+  right random 50
+  left random 50
+  forward 1
+end
+
+to consume-energy
+  set energy energy - 1
+  if energy <= 0 [
+    die
+  ]
+  if energy > 150 [
+    hatch 1 [
+      set energy 100
+      right random 360
+      forward 1
+    ]
+    set energy 100
+  ]
+end
+
+to regrow-food
+  if random 100 < 5 [
+    create-food-sources 1 [
+      setxy random-xcor random-ycor
+      set color green
+      set shape "circle"
+    ]
+  ]
+end
